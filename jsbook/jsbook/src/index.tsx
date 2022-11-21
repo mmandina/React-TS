@@ -7,25 +7,29 @@ const App = () => {
   const [input, setInput] = useState('');
   const [code, setCode] = useState('');
   const startService = async () => {
-    ref.current = await esbuild.startService({
-      worker: true,
-      wasmURL: '/esbuild.wasm',
-    });
+    try {
+      await esbuild.initialize({
+        worker: true,
+        wasmURL: '/esbuild.wasm',
+      });
+    } catch (err) {}
+    console.log(esbuild);
   };
 
   useEffect(() => {
     startService();
   }, []);
   const onClick = async () => {
-    if (!ref.current) {
-      return;
+    try {
+      const res = await esbuild.transform(input, {
+        loader: 'jsx',
+        target: 'es2015',
+      });
+
+      setCode(res.code);
+    } catch (err) {
+      console.error(err);
     }
-    const result = await ref.current.transform(input, {
-      loader: 'jsx',
-      target: 'es2015',
-    });
-    console.log(result);
-    setCode(result.code);
   };
   return (
     <div>
