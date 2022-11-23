@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-  ]
+, "plugins/plugin.tsx"  ]
 }
