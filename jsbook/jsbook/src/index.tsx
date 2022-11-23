@@ -2,31 +2,31 @@ import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { useState, useEffect, useRef } from 'react';
 import * as esbuild from 'esbuild-wasm';
+import { unpkgPathPlugin } from './plugins/unpkg-path-plugin';
 const App = () => {
-  const ref = useRef<any>();
   const [input, setInput] = useState('');
   const [code, setCode] = useState('');
-  const startService = async () => {
+  const initialize = async () => {
     try {
       await esbuild.initialize({
         worker: true,
         wasmURL: '/esbuild.wasm',
       });
     } catch (err) {}
-    console.log(esbuild);
   };
 
   useEffect(() => {
-    startService();
+    initialize();
   }, []);
   const onClick = async () => {
     try {
-      const res = await esbuild.transform(input, {
-        loader: 'jsx',
-        target: 'es2015',
+      const res = await esbuild.build({
+        entryPoints: ['index.js'],
+        bundle: true,
+        write: false,
+        plugins: [unpkgPathPlugin()],
       });
-
-      setCode(res.code);
+      setCode(res.outputFiles[0].text);
     } catch (err) {
       console.error(err);
     }
